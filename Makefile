@@ -1,5 +1,5 @@
-src/cdb: src/main.c src/sqlite3.c src/sqlite3.h
-	gcc -std=c11 -O2 src/main.c src/sqlite3.c -o $@ -lm -pthread
+src/cdb: $(wildcard src/*.c src/*.h)
+	gcc -std=c11 -O2 src/*.c -o $@ -lm -pthread
 
 run: src/cdb
 	cd src && ./cdb

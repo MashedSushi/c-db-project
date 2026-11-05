@@ -1,0 +1,8 @@
+src/sqlite3.c
+src/sqlite3.h
+**/*.db
+**/*.db-*
+**/*.db.bak
+src/cdb
+.vs/
+x64/
