@@ -1,13 +1,10 @@
-CFLAGS ?= -std=c11 -O2
-LDLIBS ?= -lm -pthread
+src/cdb: src/main.c src/sqlite3.c src/sqlite3.h
+	gcc -std=c11 -O2 src/main.c src/sqlite3.c -o $@ -lm -pthread
 
-cdb/cdb: cdb/main.c cdb/sqlite3.c cdb/sqlite3.h
-	$(CC) $(CFLAGS) cdb/main.c cdb/sqlite3.c -o $@ $(LDFLAGS) $(LDLIBS)
-
-run: cdb/cdb
-	cd cdb && ./cdb
+run: src/cdb
+	cd src && ./cdb
 
 clean:
-	$(RM) cdb/cdb
+	$(RM) src/cdb
 
 .PHONY: run clean
