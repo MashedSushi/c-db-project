@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "app.h"
+#include "fort.h"
 
 static int execute_sql(sqlite3 *db, const char *sql)
 {
@@ -113,10 +114,23 @@ void db_print(sqlite3 *db, sqlite3_stmt *stmt)
 {
     if (!stmt)
         return;
+    ft_table_t *table = ft_create_table();
+    if (!table)
+    {
+        puts("[오류] 표를 만들 수 없습니다.");
+        sqlite3_finalize(stmt);
+        return;
+    }
+    if (ft_set_border_style(table, FT_BASIC_STYLE) < 0 ||
+        ft_set_cell_prop(table, 0, FT_ANY_COLUMN, FT_CPROP_ROW_TYPE, FT_ROW_HEADER) < 0)
+        goto table_error;
+
     int columns = sqlite3_column_count(stmt);
     for (int i = 0; i < columns; i++)
-        printf("%s%s", i == 0 ? "" : " | ", sqlite3_column_name(stmt, i));
-    putchar('\n');
+        if (ft_u8write(table, sqlite3_column_name(stmt, i)) < 0)
+            goto table_error;
+    if (ft_ln(table) < 0)
+        goto table_error;
 
     int result;
     int rows = 0;
@@ -125,14 +139,34 @@ void db_print(sqlite3 *db, sqlite3_stmt *stmt)
         for (int i = 0; i < columns; i++)
         {
             const char *text = (const char *)sqlite3_column_text(stmt, i);
-            printf("%s%s", i == 0 ? "" : " | ", text ? text : "-");
+            if (ft_u8write(table, text ? text : "-") < 0)
+                goto table_error;
+            if (sqlite3_column_type(stmt, i) == SQLITE_INTEGER &&
+                ft_set_cell_prop(table, FT_ANY_ROW, i, FT_CPROP_TEXT_ALIGN, FT_ALIGNED_RIGHT) < 0)
+                goto table_error;
         }
-        putchar('\n');
+        if (ft_ln(table) < 0)
+            goto table_error;
         rows++;
     }
+
+    const char *output = (const char *)ft_to_u8string(table);
+    if (!output)
+        goto table_error;
+    printf("\n%s", output);
     if (result != SQLITE_DONE)
         printf("[오류] 조회 실패: %s\n", sqlite3_errmsg(db));
     else if (rows == 0)
         puts("조회 결과가 없습니다.");
+    else
+        printf("총 %d건\n", rows);
+    putchar('\n');
+    ft_destroy_table(table);
+    sqlite3_finalize(stmt);
+    return;
+
+table_error:
+    puts("[오류] 표를 만들 수 없습니다.");
+    ft_destroy_table(table);
     sqlite3_finalize(stmt);
 }

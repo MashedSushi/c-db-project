@@ -1,7 +1,7 @@
 # c-db-project
 
 C와 SQLite로 만든 미니 도서 대여 관리 프로그램입니다.
-SQLite 소스가 포함되어 있어 SQLite 라이브러리를 별도로 설치할 필요가 없습니다.
+SQLite와 표 출력용 libfort 소스가 포함되어 있어 두 라이브러리를 별도로 설치할 필요가 없습니다.
 
 ## 빠른 실행
 
@@ -125,7 +125,7 @@ GCC용 Makefile 대신 MSVC로 같은 C 소스를 빌드합니다.
 ```bat
 cd /d "C:\work\c-db-project"
 if not exist x64 mkdir x64
-cl /nologo /TC /std:c11 /utf-8 /D_CRT_SECURE_NO_WARNINGS /Fox64\ /Fex64\cdb.exe src\main.c src\input.c src\db.c src\book.c src\rental.c src\sqlite3.c
+cl /nologo /TC /std:c11 /utf-8 /D_CRT_SECURE_NO_WARNINGS /Fox64\ /Fex64\cdb.exe src\main.c src\input.c src\db.c src\book.c src\rental.c src\sqlite3.c src\fort.c
 cd db
 chcp 65001
 ..\x64\cdb.exe
@@ -154,8 +154,10 @@ src/db.c
 src/book.c
 src/rental.c
 src/sqlite3.c
+src/fort.c
 src/app.h
 src/sqlite3.h
+src/fort.h
 ```
 
 루트에 있는 `main.c`는 별도 연결 테스트 코드이므로 이 프로젝트에 함께 추가하지 않습니다.
@@ -189,7 +191,8 @@ DB가 없으면 테이블과 샘플 도서 3권을 생성합니다.
 ## 사용 방법
 
 입력은 항목마다 한 줄씩 받으므로 제목과 이름에 공백을 사용할 수 있습니다.
-날짜는 `YYYYMMDD` 형식으로 입력합니다. 검색은 ID·제목·저자의 일부로 가능합니다.
+날짜는 `YYYYMMDD` 형식으로 입력하고, 조회 표에서는 `YYYY-MM-DD` 형식으로 표시합니다.
+검색은 ID·제목·저자의 일부로 가능합니다.
 메뉴 1~5는 목록·등록·대여·이력·통계, 6~10은 검색·수정·삭제·반납·현재 대여 목록입니다.
 메뉴는 처음 한 번 표시하며, 이후에는 `선택 >`에서 번호를 입력합니다.
 종료하려면 `0`을 입력합니다.
@@ -204,6 +207,13 @@ C 언어 심화
 ```
 
 반납은 대여 ID로 처리하며, 대여 이력이 있는 도서는 기록 보존을 위해 삭제할 수 없습니다.
+
+목록·검색·대여 이력·통계는 테두리와 열 정렬이 있는 표로 출력합니다.
+한글과 영문을 함께 표시해도 열 너비를 맞추며, 숫자는 오른쪽으로 정렬하고 조회 건수를 표시합니다.
+고정폭 글꼴을 사용하는 터미널에서 실행합니다.
+
+표 출력에는 [libfort v0.5.2 태그의 소스](https://github.com/seleznevae/libfort/tree/v0.5.2)를 사용합니다.
+`src/fort.c`와 `src/fort.h`를 포함했으며, 각 파일의 MIT 라이선스 고지를 유지합니다.
 
 ## 자주 발생하는 문제
 
@@ -225,7 +235,7 @@ C 언어 심화
 
 VS Code에서 Prettier와 C/C++ 확장을 사용하면 저장 시 자동으로 포맷합니다.
 JSON·Markdown·YAML은 `.prettierrc`, C는 `.clang-format` 설정을 따릅니다.
-들여쓰기는 공백 4칸, 줄 길이는 100자를 기준으로 하며 SQLite 원본은 포맷에서 제외합니다.
+들여쓰기는 공백 4칸, 줄 길이는 100자를 기준으로 하며 SQLite와 libfort 원본은 포맷에서 제외합니다.
 
 ## 검증 범위
 

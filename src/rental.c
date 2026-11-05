@@ -50,8 +50,12 @@ void print_rentals(sqlite3 *db, int active_only)
 {
     sqlite3_stmt *stmt =
         db_prepare(db, "SELECT R.RENT_ID AS 대여ID, B.BOOK_ID AS 도서ID, B.TITLE AS 제목, "
-                       "R.USER_NAME AS 대출자, R.RENT_DATE AS 대여일, "
-                       "COALESCE(R.RETURN_DATE, '대여 중') AS 반납일 "
+                       "R.USER_NAME AS 대출자, "
+                       "substr(R.RENT_DATE, 1, 4) || '-' || substr(R.RENT_DATE, 5, 2) || '-' || "
+                       "substr(R.RENT_DATE, 7, 2) AS 대여일, "
+                       "COALESCE(substr(R.RETURN_DATE, 1, 4) || '-' || "
+                       "substr(R.RETURN_DATE, 5, 2) || '-' || substr(R.RETURN_DATE, 7, 2), "
+                       "'대여 중') AS 반납일 "
                        "FROM TBL_RENTAL R INNER JOIN TBL_BOOK B ON R.BOOK_ID = B.BOOK_ID "
                        "WHERE ?1 = 0 OR R.RETURN_DATE IS NULL ORDER BY R.RENT_ID DESC;");
     if (!stmt)
